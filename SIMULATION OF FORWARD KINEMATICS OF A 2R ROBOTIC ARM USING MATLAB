@@ -1,0 +1,54 @@
+% A program to simulate the forward kinematics of a 2R robotic arm
+clear all
+close all
+clc
+
+%inputs
+%specifying the lengths of the links
+l1 = 1;
+l2 = 0.5;
+%Angles recorded by link-1 & link-2 in degrees
+theta_1 = linspace(0,90,10);
+theta_2 = linspace(0,90,10);
+
+ct=1;
+for i = 1:length(theta_1) 
+    THETA_1 = theta_1(i);  %taking the particular values of angle recorded by link-1
+    for j = 1:length(theta_2)  %iterating all values of theta_2 for particular values of theta_1
+        THETA_2 = theta_2(j);  %taking the particular values of angle recorded by link-2
+        
+      %initialising base coordinates of link-1
+      x0 = 0;
+      y0 = 0;
+      
+      %calculating the end points of link-1
+      x1 = l1*cosd(THETA_1);
+      y1 = l1*sind(THETA_2);
+      
+            %calcutaing the end of link-2
+            x2 = x1 + l2*cosd(THETA_2);
+            y2 = y1 + l2*sind(THETA_2);
+            
+            %plotting the robotic arm
+            plot([x0 x1],[y0 y1],[x1 x2],[y1 y2],'linewidth',3)
+           %specifying the axis of the plot
+            axis([-0.1 1.5 0 1.5])
+            %pausing the plot before moving to the next
+            pause(0.03)
+            %capturing the frames of the to create movie of the plot
+            M(ct) = getframe(gcf);
+            %incrementing ct to capture each frame in M
+            ct = ct+1;
+    end
+end
+
+%creating the movie of the collected frames
+movie(M)
+
+%creating the video in '.avi' format
+videofile = VideoWriter('forward_kinematics.avi','Uncompressed AVI');
+open(videofile)
+
+%writing the movie in created videofile
+writeVideo(videofile,M)
+close(videofile)
