@@ -1,0 +1,102 @@
+% Function to calculate angular displacement and angular velocity of the pendulum over its time span
+
+function [dtheta_dt] = ode_func(t,theta,b,g,l,m)
+% initialisation for calculation
+theta1 = theta(1);    % initial angular displacement
+theta2 = theta(2);    % initial angular velocity
+
+% calculating the differential
+dtheta1_dt = theta2;
+dtheta2_dt = -(b/m)*theta2 - (g/l)*sin(theta1);
+
+% Assigning the result to 'd_theta'
+dtheta_dt = [dtheta1_dt;dtheta2_dt];
+
+end
+
+
+
+%the main program:
+
+%  Program to simulate the transient behaviour of a simple pendulum and to 
+% create an animation of it's motion using second order Ordinary Differential
+% Equation in MATLAB
+
+clear all
+close all
+clc
+
+b = 0.05; % damping constant
+g = 9.81; % aceeleration due to gravity in m^2/s
+l = 1; % length of the pendulum in meter
+m = 0.1;  % mass of the pendulu in kg
+
+%initial condition
+theta_0 = [0;3]; % angular displacement and angular velocity at time t=0
+
+ 
+%time points
+t_span = linspace(0,20,500); % creating a time span of 20 secs
+
+
+%solving ode
+
+[t,results] = ode45(@(t,theta) ode_func(t,theta,b,g,l,m),t_span,theta_0);
+
+%output
+figure(1)
+plot(t,results(:,1))
+hold on
+plot(t,results(:,2))
+legend('Angular displacement','angular velocity');
+title('Transient behaviour of Simple pendulum');
+ylabel('plot')
+xlabel('time')
+hold off
+
+%creating the animation
+figure(2)
+ct = 1;
+for i = 1:length(results(:,1))
+    x1 = 0;
+    y1 = 0;
+    
+    x2 =  l*sin(results(i,1));
+    y2 = -(l*cos(results(i,1)));
+    
+   % hang pendulum
+    plot([-1 1],[0 0],'linewidth',5,'color','k')
+    hold on
+    
+    %hanging the line
+    plot([0 0],[-1.3 0],'.')
+    hold on
+    
+    plot([x1 x2],[y1 y2],'linewidth',4,'color','b')
+    hold on
+    
+    plot(x2,y2,'.','markersize',50,'color','r')
+    hold on
+    
+    plot(x2,y2,'.')
+    hold off
+    
+    title('simple pendulum');
+    text(-0.5,-1,['Time = ', num2str(t_span(i)),'sec'],'fontsize',15);
+    text(-1,-1.2,['Angular velocity = ', num2str(results(i,2)),'rad/sec'],'fontsize',15);
+    
+    axis([-1.5 1.5 -1.5 0.5])
+    grid on
+    
+     F(ct) = getframe(gcf);
+    ct = ct+1;
+   
+end
+
+
+%creating the movie 
+movie(F)
+videofile = VideoWriter('pendulum_animation.avi','uncompressed avi');
+open(videofile)
+writeVideo(videofile,F)
+close(videofile)
